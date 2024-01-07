@@ -140,12 +140,18 @@ bool TalentProfilesGossipScript::TryCreateProfile(Player* player, std::string na
 
     TalentProfile talentProfile;
     talentProfile.name = name;
+    talentProfile.remainingPoints = player->GetFreeTalentPoints();
 
     auto talentMap = player->GetTalentMap();
     for (auto talent : talentMap)
     {
         auto spellId = talent.first;
         auto playerTalent = talent.second;
+
+        if (playerTalent->State == PLAYERSPELL_REMOVED)
+        {
+            continue;
+        }
 
         TalentInfo talentInfo;
         talentInfo.spellId = spellId;
@@ -203,11 +209,12 @@ bool TalentProfilesGossipScript::TryActivateTalents(Player* player, TalentProfil
             auto spellId = talentInfo->RankID[rank];
             if (spellId == talent.spellId)
             {
-                player->LearnTalent(talent.talent.talentID, rank, false);
+                player->LearnTalent(talent.talent.talentID, rank, true);
             }
         }
     }
 
+    player->SetFreeTalentPoints(profile->remainingPoints);
     player->SendTalentsInfoData(false);
 
     return true;

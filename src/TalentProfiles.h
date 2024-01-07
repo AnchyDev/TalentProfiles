@@ -23,6 +23,7 @@ struct TalentInfo
 struct TalentProfile
 {
     std::string name;
+    uint32 remainingPoints;
     std::vector<TalentInfo> talents;
 };
 
