@@ -160,6 +160,24 @@ bool TalentProfilesGossipScript::TryCreateProfile(Player* player, std::string na
         talentProfile.talents.push_back(talentInfo);
     }
 
+    for (uint8 i = 0; i <= MAX_ACTION_BUTTONS; i++)
+    {
+        auto actionButton = player->GetActionButton(i);
+
+        if (!actionButton)
+        {
+            continue;
+        }
+
+
+        ActionBarInfo actionInfo;
+        actionInfo.slot = i;
+        actionInfo.actionId = actionButton->GetAction();
+        actionInfo.actionType = actionButton->GetType();
+
+        talentProfile.actions.push_back(actionInfo);
+    }
+
     talentProfiles->emplace(name, talentProfile);
 
     return true;
@@ -213,6 +231,20 @@ bool TalentProfilesGossipScript::TryActivateTalents(Player* player, TalentProfil
             }
         }
     }
+
+    // Clear actionbar
+    for (uint8 i = 0; i <= MAX_ACTION_BUTTONS; i++)
+    {
+        player->removeActionButton(i);
+    }
+
+    // Repopulate actionbar
+    for (auto& action : profile->actions)
+    {
+        player->addActionButton(action.slot, action.actionId, action.actionType);
+    }
+
+    player->SendActionButtons(1);
 
     player->SetFreeTalentPoints(profile->remainingPoints);
     player->SendTalentsInfoData(false);

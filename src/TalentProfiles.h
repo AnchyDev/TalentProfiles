@@ -20,11 +20,19 @@ struct TalentInfo
     PlayerTalent talent;
 };
 
+struct ActionBarInfo
+{
+    uint32 actionId;
+    uint32 actionType;
+    uint32 slot;
+};
+
 struct TalentProfile
 {
     std::string name;
     uint32 remainingPoints;
     std::vector<TalentInfo> talents;
+    std::vector<ActionBarInfo> actions;
 };
 
 class TalentProfilesGossipScript : public GameObjectScript
