@@ -142,41 +142,8 @@ bool TalentProfilesGossipScript::TryCreateProfile(Player* player, std::string na
     talentProfile.name = name;
     talentProfile.remainingPoints = player->GetFreeTalentPoints();
 
-    auto talentMap = player->GetTalentMap();
-    for (auto talent : talentMap)
-    {
-        auto spellId = talent.first;
-        auto playerTalent = talent.second;
-
-        if (playerTalent->State == PLAYERSPELL_REMOVED)
-        {
-            continue;
-        }
-
-        TalentInfo talentInfo;
-        talentInfo.spellId = spellId;
-        talentInfo.talent = *playerTalent;
-
-        talentProfile.talents.push_back(talentInfo);
-    }
-
-    for (uint8 i = 0; i <= MAX_ACTION_BUTTONS; i++)
-    {
-        auto actionButton = player->GetActionButton(i);
-
-        if (!actionButton)
-        {
-            continue;
-        }
-
-
-        ActionBarInfo actionInfo;
-        actionInfo.slot = i;
-        actionInfo.actionId = actionButton->GetAction();
-        actionInfo.actionType = actionButton->GetType();
-
-        talentProfile.actions.push_back(actionInfo);
-    }
+    talentProfile.talents = GetTalents(player);
+    talentProfile.actions = GetActions(player);
 
     talentProfiles->emplace(name, talentProfile);
 
@@ -295,6 +262,56 @@ TalentProfile* TalentProfilesGossipScript::GetProfileByIndex(Player* player, uin
     }
 
     return nullptr;
+}
+
+std::vector<TalentInfo> TalentProfilesGossipScript::GetTalents(Player* player)
+{
+    std::vector<TalentInfo> talents;
+
+    auto talentMap = player->GetTalentMap();
+    for (auto talent : talentMap)
+    {
+        auto spellId = talent.first;
+        auto playerTalent = talent.second;
+
+        if (playerTalent->State == PLAYERSPELL_REMOVED ||
+            !playerTalent->IsInSpec(player->GetActiveSpec()))
+        {
+            continue;
+        }
+
+        TalentInfo talentInfo;
+        talentInfo.spellId = spellId;
+        talentInfo.talent = *playerTalent;
+
+        talents.push_back(talentInfo);
+    }
+
+    return talents;
+}
+
+std::vector<ActionBarInfo> TalentProfilesGossipScript::GetActions(Player* player)
+{
+    std::vector<ActionBarInfo> actions;
+
+    for (uint8 i = 0; i <= MAX_ACTION_BUTTONS; i++)
+    {
+        auto actionButton = player->GetActionButton(i);
+
+        if (!actionButton)
+        {
+            continue;
+        }
+
+        ActionBarInfo actionInfo;
+        actionInfo.slot = i;
+        actionInfo.actionId = actionButton->GetAction();
+        actionInfo.actionType = actionButton->GetType();
+
+        actions.push_back(actionInfo);
+    }
+
+    return actions;
 }
 
 void SC_AddTalentProfilesScripts()

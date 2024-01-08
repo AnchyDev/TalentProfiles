@@ -52,6 +52,9 @@ private:
     std::map<std::string, TalentProfile>* GetTalentProfiles(Player* /*player*/);
     TalentProfile* GetProfileByIndex(Player* /*player*/, uint32 /*index*/);
 
+    std::vector<TalentInfo> GetTalents(Player* /*player*/);
+    std::vector<ActionBarInfo> GetActions(Player* /*player*/);
+
 private:
     std::map<uint64, std::map<std::string, TalentProfile>> TalentProfiles;
 };
